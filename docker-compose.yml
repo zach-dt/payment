@@ -3,8 +3,8 @@ version: '2'
 services:
     payment:
         build: 
-            context: .
-            dockerfile: docker/payment/Dockerfile
+            context: ./docker/payment/
+            dockerfile: Dockerfile
         image: weaveworksdemos/payment
         hostname: payment
         restart: always
