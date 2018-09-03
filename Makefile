@@ -12,7 +12,7 @@ copy:
 
 build:
 	# docker build -t $(NAME) -f ./docker/payment/Dockerfile-release .
-	docker build -t $(NAME) -f ./docker/payment/Dockerfile ./app
+	docker build -t $(NAME) -f ./docker/payment/Dockerfile ./docker
 
 test:
 	GROUP=weaveworksdemos COMMIT=$(COMMIT) ./scripts/build.sh
