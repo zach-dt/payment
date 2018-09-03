@@ -17,7 +17,7 @@ RUN go get -u github.com/FiloSottile/gvt
 RUN cd /go/src/github.com/acm-demo/payment/ && gvt restore
 RUN ls -lsa /go/src/github.com/acm-demo/payment
 
-RUN GOOS=linux go build -a -ldflags -linkmode=external -installsuffix cgo -o /app/main github.com/acm-workshop/payment/tree/master/cmd/paymentsvc
+RUN GOOS=linux go build -a -ldflags -linkmode=external -installsuffix cgo -o /app/main github.com/acm-workshop/payment/cmd/paymentsvc
 
 CMD ["/app/main", "-port=8080"]
 
