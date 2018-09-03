@@ -10,7 +10,7 @@ copy:
 	docker cp $(INSTANCE):/app/main $(shell pwd)/app
 	docker rm $(INSTANCE)
 
-release:
+build:
 	docker build -t $(NAME) -f ./docker/payment/Dockerfile-release .
 
 test:
