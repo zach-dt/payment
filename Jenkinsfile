@@ -63,6 +63,7 @@ pipeline {
             }
             dir ('/home/jenkins/go/src/github.com/acm-workshop/payment') {
               container('go') {
+                sh "./scripts/build.jb.sh"
                 sh "make build"
                 sh 'export VERSION=`cat VERSION` && skaffold build -f skaffold.yaml'
 

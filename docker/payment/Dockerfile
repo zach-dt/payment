@@ -11,13 +11,13 @@ ENV PATH $PATH:$GOROOT/bin:$GOPATH/bin
 
 # Build app
 RUN mkdir /app
-COPY payment/ /go/src/github.com/acm-demo/payment
+COPY payment/ /go/src/github.com/microservices-demo/payment
 
 RUN go get -u github.com/FiloSottile/gvt
-RUN cd /go/src/github.com/acm-demo/payment/ && gvt restore
-RUN ls -lsa /go/src/github.com/acm-demo/payment
+RUN cd /go/src/github.com/microservices-demo/payment/ && gvt restore
+RUN ls -lsa /go/src/github.com/microservices-demo/payment
 
-RUN GOOS=linux go build -a -ldflags -linkmode=external -installsuffix cgo -o /app/main github.com/acm-workshop/payment/cmd/paymentsvc
+RUN GOOS=linux go build -a -ldflags -linkmode=external -installsuffix cgo -o /app/main github.com/microservices-demo/payment/cmd/paymentsvc
 
 CMD ["/app/main", "-port=8080"]
 
