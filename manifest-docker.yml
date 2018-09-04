@@ -1,6 +1,6 @@
 ---
 applications:
-- name: payment
+- name: APPNAME
   memory: 512M
   instances: 1
   docker:
