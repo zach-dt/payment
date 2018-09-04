@@ -10,8 +10,9 @@ copy:
 	docker cp $(INSTANCE):/app/main $(shell pwd)/app
 	docker rm $(INSTANCE)
 
-release:
-	docker build -t $(NAME) -f ./docker/payment/Dockerfile-release .
+build:
+	# docker build -t $(NAME) -f ./docker/payment/Dockerfile-release .
+	# docker build -t $(NAME) -f ./docker/payment/Dockerfile ./docker
 
 test:
 	GROUP=weaveworksdemos COMMIT=$(COMMIT) ./scripts/build.sh
