@@ -68,7 +68,7 @@ pipeline {
                 // sh "make build"
                 sh 'docker build -t $DOCKER_REGISTRY/$ORG/$APP_NAME:\$(cat VERSION) -f ./docker/payment/Dockerfile ./docker'
                 sh 'export VERSION=`cat VERSION`' // && skaffold build -f skaffold.yaml'
-                // sh 'docker push $DOCKER_REGISTRY/$ORG/$APP_NAME:\$(cat VERSION)'
+                sh 'docker push $DOCKER_REGISTRY/$ORG/$APP_NAME:\$(cat VERSION)'
                 sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:\$(cat VERSION)"
               }
             }
