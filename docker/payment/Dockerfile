@@ -21,4 +21,4 @@ RUN GOOS=linux go build -a -ldflags -linkmode=external -installsuffix cgo -o /ap
 
 CMD ["/app/main", "-port=8080"]
 
-#EXPOSE 80
+EXPOSE 8080
