@@ -4,6 +4,12 @@ groups:
   jobs:
   - build-payment
   - deploy-payment-to-stage
+  - execute-payment-load-tests
+  - validate-payment-load-test
+  - build-payment-test-image
+  - execute-payment-functional-tests
+  - deploy-payment-to-prod
+  - promote-new-version-payment
 
 - name: init-dynatrace
   jobs: 
