@@ -4,11 +4,10 @@ groups:
   jobs:
   - build-payment
   - deploy-payment-to-stage
+  - health-check
+  - deploy-payment-to-prod
   - execute-payment-load-tests
   - validate-payment-load-test
-  - build-payment-test-image
-  - execute-payment-functional-tests
-  - deploy-payment-to-prod
   - promote-new-version-payment
 
 - name: init-dynatrace
@@ -22,12 +21,18 @@ resource_types:
     repository: mvilliger/dynatrace-resource
 
 resources:
-# GitHub Repositories
+
 - name: git-pipeline
   type: git
   source:
     branch: master
     uri: https://github.com/acm-workshop-concourse/sockshop.git
+
+- name: git-jmeter-as-container
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/acm-workshop/jmeter-as-container.git
 
 - name: git-payment
   type: git
@@ -40,19 +45,11 @@ resources:
   source:
     apitoken: ((apitoken))
     tenanthost: ((tenanthost))
-# Docker Images
 
 - name: payment-image
   type: docker-image
   source:
     repository: ((docker-hub-username))/payment
-    username: ((docker-hub-username))
-    password: ((docker-hub-password))
-
-- name: payment-test-image
-  type: docker-image
-  source:
-    repository: ((docker-hub-username))/payment-test
     username: ((docker-hub-username))
     password: ((docker-hub-password))
 
@@ -95,7 +92,7 @@ jobs:
       tenanthost: ((tenanthost))
       APP_REPO: git-payment
 
-# payment
+# PAYMENT
 
 - name: build-payment
   plan:
@@ -117,22 +114,12 @@ jobs:
         - -exc
         - |
           output_dir=workspace
-          rm git-payment/Dockerfile
-          cp git-payment/docker/payment/Dockerfile git-payment/
-          cp -R git-payment/. "${output_dir}/"
+          cp git-payment/docker/payment/Dockerfile "${output_dir}/Dockerfile"
+          sh git-payment/scripts/build.jb.sh
+          cp -R git-payment/docker/payment/ "${output_dir}/"
   - put: payment-image
     params:
       build: workspace
-      cache_tag: latest
-
-- name: build-payment-test-image
-  serial: true
-  public: true
-  plan:
-  - get: git-payment
-  - put: payment-test-image
-    params:
-      build: git-payment
       cache_tag: latest
 
 - name: deploy-payment-to-stage
@@ -161,7 +148,7 @@ jobs:
     params:
       manifest: app-manifest-output/manifest.yml  
   
-- name: execute-payment-functional-tests
+- name: health-check
   serial: true
   public: true
   plan:
@@ -170,22 +157,21 @@ jobs:
       trigger: true
       passed:
         - deploy-payment-to-stage
-    - get: payment-test-image
-      passed:
-        - build-payment-test-image
-  - task: run-functional-tests
-    image: payment-test-image
-    config:
-      platform: linux
-      inputs:
-      - name: git-payment
-      run:
-        dir: git-payment
-        path: /bin/sh
-        args:
-        - -c
-        - |
-          go test api/endpoints_test.go
+    - get: git-jmeter-as-container
+    - get: git-pipeline
+  - task: run-load-tests
+    file: git-pipeline/deploy/cloud-foundry/ci/tasks/health-test.yml
+    params:
+      APP_REPO: git-jmeter-as-container
+      FUNC_VALIDATION: yes
+      PRODUCTION: false
+      SCRIPT_NAME: basiccheck.jmx
+      PCF_APP_SUFFIX: ((pcf-stage-payment-suffix))
+      PCF_APP_DOMAIN: ((pcf-prod-app-domain))
+      DT_LTN: HealthCheck
+      VUCount: 1
+      LoopCount: 1
+
 - name: deploy-payment-to-prod
   serial: true
   public: true
@@ -193,7 +179,7 @@ jobs:
   - get: git-payment
     trigger: true
     passed:
-      - execute-payment-functional-tests 
+      - health-check
   - get: git-pipeline
     trigger: false
   - task: get-current-app-color
@@ -231,9 +217,6 @@ jobs:
       trigger: true
       passed:
         - deploy-payment-to-prod
-    - get: payment-test-image
-      passed:
-        - build-payment-test-image
     - get: git-pipeline
       trigger: false        
   - task: get-current-app-color
@@ -287,7 +270,6 @@ jobs:
       apitoken: ((apitoken))
       tenanthost: ((tenanthost))
       APP_REPO: git-payment     
-
 
 - name: promote-new-version-payment
   serial: true
