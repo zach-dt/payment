@@ -3,6 +3,9 @@ logs
 *.log
 npm-debug.log*
 
+# Credentials
+credentials.yml
+
 # Dependency directories
 node_modules
 jspm_packages
