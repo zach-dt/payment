@@ -2,7 +2,7 @@
 groups:
 - name: payment-jobs
   jobs:
-  - build-payment
+#  - build-payment
   - deploy-payment-to-stage
   - health-check
   - deploy-payment-to-prod
@@ -46,13 +46,6 @@ resources:
     apitoken: ((apitoken))
     tenanthost: ((tenanthost))
 
-- name: payment-image
-  type: docker-image
-  source:
-    repository: ((docker-hub-username))/payment
-    username: ((docker-hub-username))
-    password: ((docker-hub-password))
-
 # PCF Environments
 
 - name: pcf-stage
@@ -94,42 +87,42 @@ jobs:
 
 # PAYMENT
 
-- name: build-payment
-  plan:
-  - get: git-payment
-    trigger: true
-  - task: copy-dockerfile
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source: {repository: busybox}
-      inputs:
-      - name: git-payment
-      outputs:
-      - name: workspace
-      run:
-        path: /bin/sh
-        args:
-        - -exc
-        - |
-          output_dir=workspace
-          cp git-payment/docker/payment/Dockerfile "${output_dir}/Dockerfile"
-          sh git-payment/scripts/build.jb.sh
-          cp -R git-payment/docker/payment/ "${output_dir}/"
-  - put: payment-image
-    params:
-      build: workspace
-      cache_tag: latest
+#- name: build-payment
+#  plan:
+#  - get: git-payment
+#    trigger: true
+#  - task: copy-dockerfile
+#    config:
+#      platform: linux
+#      image_resource:
+#        type: docker-image
+#        source: {repository: busybox}
+#      inputs:
+#      - name: git-payment
+#      outputs:
+#      - name: workspace
+#      run:
+#        path: /bin/sh
+#        args:
+#        - -exc
+#        - |
+#          output_dir=workspace
+#          cp git-payment/docker/payment/Dockerfile "${output_dir}/Dockerfile"
+#          sh git-payment/scripts/build.jb.sh
+#          cp -R git-payment/docker/payment/ "${output_dir}/"
+#  - put: payment-image
+#    params:
+#      build: workspace
+#      cache_tag: latest
 
 - name: deploy-payment-to-stage
   serial: true
   public: true
   plan:
   - get: git-payment
-    trigger: true
-    passed:
-      - build-payment
+#    trigger: true
+#    passed:
+#      - build-payment
   - get: git-pipeline
     trigger: false      
   - task: prepare-app-manifest
@@ -146,7 +139,8 @@ jobs:
       APP_REPO: git-payment 
   - put: pcf-stage
     params:
-      manifest: app-manifest-output/manifest.yml  
+      path: git-payment
+      manifest: app-manifest-output/manifest.yml 
   
 - name: health-check
   serial: true
