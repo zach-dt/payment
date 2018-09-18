@@ -23,7 +23,7 @@ const (
 
 func main() {
 	var (
-		port          = flag.String("port", "8081", "Port to bind HTTP listener")
+		port          = flag.String("port", os.Getenv("APP_PORT"), "Port to bind HTTP listener")
 		zip           = flag.String("zipkin", os.Getenv("ZIPKIN"), "Zipkin address")
 		declineAmount = flag.Float64("decline", 105, "Decline payments over certain amount")
 	)
@@ -34,8 +34,8 @@ func main() {
 		var logger log.Logger
 		{
 			logger = log.NewLogfmtLogger(os.Stderr)
-			logger = log.NewContext(logger).With("ts", log.DefaultTimestampUTC)
-			logger = log.NewContext(logger).With("caller", log.DefaultCaller)
+			logger = log.With(logger, "ts", log.DefaultTimestampUTC)
+			logger = log.With(logger, "caller", log.DefaultCaller)
 		}
 		// Find service local IP.
 		conn, err := net.Dial("udp", "8.8.8.8:80")
@@ -49,7 +49,7 @@ func main() {
 		if *zip == "" {
 			tracer = stdopentracing.NoopTracer{}
 		} else {
-			logger := log.NewContext(logger).With("tracer", "Zipkin")
+			logger := log.With(logger, "tracer", "Zipkin")
 			logger.Log("addr", zip)
 			collector, err := zipkin.NewHTTPCollector(
 				*zip,
@@ -73,7 +73,7 @@ func main() {
 	errc := make(chan error)
 	ctx := context.Background()
 
-	handler, logger := payment.WireUp(ctx, float32(*declineAmount), tracer, ServiceName)
+	handler, logger := api.WireUp(ctx, float32(*declineAmount), tracer, ServiceName)
 
 	// Create and launch the HTTP server.
 	go func() {
