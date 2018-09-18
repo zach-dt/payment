@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"context"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/circuitbreaker"
@@ -14,8 +15,7 @@ import (
 	"github.com/gorilla/mux"
 	stdopentracing "github.com/opentracing/opentracing-go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-        "github.com/streadway/handy/breaker"
-	"golang.org/x/net/context"
+    "github.com/streadway/handy/breaker"
 )
 
 // MakeHTTPHandler mounts the endpoints into a REST-y HTTP handler.
