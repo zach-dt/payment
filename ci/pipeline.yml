@@ -120,7 +120,7 @@ jobs:
     trigger: true  
   - get: version
     params: { bump: patch }
-  - task: copy-dockerfile
+  - task: build-payment-binary
     config:
       platform: linux
       image_resource:
