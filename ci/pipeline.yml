@@ -46,12 +46,12 @@ resources:
     apitoken: ((apitoken))
     tenanthost: ((tenanthost))
 
-#- name: payment-image
-#  type: docker-image
-#  source:
-#    repository: ((docker-hub-username))/payment
-#    username: ((docker-hub-username))
-#    password: ((docker-hub-password))
+- name: payment-image
+  type: docker-image
+  source:
+    repository: ((docker-hub-username))/payment
+    username: ((docker-hub-username))
+    password: ((docker-hub-password))
 
 - name: payment-release-bucket
   type: s3
@@ -137,17 +137,19 @@ jobs:
         - -exc
         - |
           output_dir=workspace
+          rm git-payment/Dockerfile
           cp git-payment/docker/payment/Dockerfile "${output_dir}/Dockerfile"
-          sh git-payment/scripts/build.jb.sh
+          #sh git-payment/scripts/build.jb.sh
           echo "binary to version" > "${output_dir}/payment-$(cat version/number).txt"
-          cp -R git-payment/docker/payment/ "${output_dir}/"
+          cp -R git-payment/* "${output_dir}/"
+          
   - put: payment-release-bucket
     params: 
       file: workspace/payment-*.txt
-#  - put: payment-image
-#    params:
-#      build: workspace
-#      cache_tag: latest
+  - put: payment-image
+    params:
+      build: workspace
+      cache_tag: latest
 
 - name: deploy-payment-to-stage
   serial: true
