@@ -57,7 +57,7 @@ resources:
   type: s3
   source:
     region_name: eu-west-1
-    regexp: payment/payment-(.*).txt
+    regexp: payment/payment-(.*)
     bucket: ((s3-bucket))
     access_key_id: ((s3-access-key-id))
     secret_access_key: ((s3-secret-access-key))
@@ -125,7 +125,7 @@ jobs:
       platform: linux
       image_resource:
         type: docker-image
-        source: {repository: busybox}
+        source: {repository: golang, tag: 1.7.1} 
       inputs:
       - name: git-payment
       - name: version
@@ -254,7 +254,8 @@ jobs:
       APP_REPO: git-payment      
   - put: pcf-production
     params:
-        manifest: app-manifest-output/manifest.yml 
+      path: git-payment
+      manifest: app-manifest-output/manifest.yml 
 
 - name: execute-payment-load-tests
   serial: true
