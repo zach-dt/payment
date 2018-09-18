@@ -27,14 +27,12 @@ func MakeHTTPHandler(ctx context.Context, e Endpoints, logger log.Logger, tracer
 	}
 
 	r.Methods("POST").Path("/paymentAuth").Handler(httptransport.NewServer(
-		ctx,
 		circuitbreaker.HandyBreaker(breaker.NewBreaker(0.2))(e.AuthoriseEndpoint),
 		decodeAuthoriseRequest,
 		encodeAuthoriseResponse,
 		append(options, httptransport.ServerBefore(opentracing.FromHTTPRequest(tracer, "POST /paymentAuth", logger)))...,
 	))
 	r.Methods("GET").Path("/health").Handler(httptransport.NewServer(
-		ctx,
 		circuitbreaker.HandyBreaker(breaker.NewBreaker(0.2))(e.HealthEndpoint),
 		decodeHealthRequest,
 		encodeHealthResponse,
