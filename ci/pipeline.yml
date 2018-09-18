@@ -154,9 +154,9 @@ jobs:
   public: true
   plan:
   - get: git-payment
-    trigger: true
-    passed:
-      - build-payment
+#    trigger: true
+#    passed:
+#      - build-payment
   - get: git-pipeline
     trigger: false      
   - task: prepare-app-manifest
