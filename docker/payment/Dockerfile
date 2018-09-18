@@ -13,11 +13,12 @@ ENV GOPATH /gopath
 ENV PATH $PATH:$GOROOT/bin:$GOPATH/bin
 
 # Build app
-#RUN mkdir /app
-#COPY payment/ /go/src/github.com/microservices-demo/payment
-
 COPY . /go/src/github.com/dynatrace-sockshop/payment
 WORKDIR /go/src/github.com/dynatrace-sockshop/payment
+
+#RUN go get -u github.com/FiloSottile/gvt
+#RUN cd /go/src/github.com/microservices-demo/payment/ && gvt restore
+#RUN GOOS=linux go build -a -ldflags -linkmode=external -installsuffix cgo -o /app/main github.com/microservices-demo/payment/cmd/paymentsvc
 
 RUN go get -v github.com/Masterminds/glide 
 RUN glide install && go build -a -ldflags -linkmode=external -installsuffix cgo -o /payment main.go
@@ -25,12 +26,6 @@ RUN glide install && go build -a -ldflags -linkmode=external -installsuffix cgo 
 ENV APP_PORT 8080
 
 WORKDIR /
-
-#RUN go get -u github.com/FiloSottile/gvt
-#RUN cd /go/src/github.com/microservices-demo/payment/ && gvt restore
-#RUN ls -lsa /go/src/github.com/microservices-demo/payment
-
-#RUN GOOS=linux go build -a -ldflags -linkmode=external -installsuffix cgo -o /app/main github.com/microservices-demo/payment/cmd/paymentsvc
 
 CMD ["/payment", "-port=8080"]
 EXPOSE 8080

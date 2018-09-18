@@ -46,12 +46,12 @@ resources:
     apitoken: ((apitoken))
     tenanthost: ((tenanthost))
 
-- name: payment-image
-  type: docker-image
-  source:
-    repository: ((docker-hub-username))/payment
-    username: ((docker-hub-username))
-    password: ((docker-hub-password))
+#- name: payment-image
+#  type: docker-image
+#  source:
+#    repository: ((docker-hub-username))/payment
+#    username: ((docker-hub-username))
+#    password: ((docker-hub-password))
 
 - name: payment-release-bucket
   type: s3
@@ -136,29 +136,47 @@ jobs:
         args:
         - -exc
         - |
-          output_dir=workspace
-          rm git-payment/Dockerfile
-          cp git-payment/docker/payment/Dockerfile "${output_dir}/Dockerfile"
-          #sh git-payment/scripts/build.jb.sh
-          echo "binary to version" > "${output_dir}/payment-$(cat version/number).txt"
-          cp -R git-payment/* "${output_dir}/"
+          # output_dir=workspace
+          # rm git-payment/Dockerfile
+          # cp git-payment/docker/payment/Dockerfile "${output_dir}/Dockerfile"
+          # sh git-payment/scripts/build.jb.sh
+          # echo "binary to version" > "${output_dir}/payment-$(cat version/number).txt"
+          # cp -R git-payment/* "${output_dir}/"
           
+          output_dir=workspace
+          export WORKDIR=$PWD
+          
+          cd workspace
+          export GOPATH=$PWD
+          mkdir -p src/github.com/dynatrace-sockshop/payment/
+          cp -R ../git-payment/* src/github.com/dynatrace-sockshop/payment/.
+          cd src/github.com/dynatrace-sockshop/payment/
+          
+          apt-get update
+          apt-get install git
+          go get -v github.com/Masterminds/glide
+          cd $GOPATH/src/github.com/Masterminds/glide
+          make build
+          export PATH=$PATH:$GOPATH/src/github.com/Masterminds/glide
+          
+          cd $GOPATH/src/github.com/dynatrace-sockshop/payment/
+          glide install && CGO_ENABLED=0 go build -a -installsuffix cgo -o payment main.go
+          
+          cd $WORKDIR
+          cp $GOPATH/src/github.com/dynatrace-sockshop/payment/payment "${output_dir}/"
+          mv ${output_dir}/payment ${output_dir}/payment-$(cat version/number)
   - put: payment-release-bucket
     params: 
-      file: workspace/payment-*.txt
-  - put: payment-image
-    params:
-      build: workspace
-      cache_tag: latest
+      file: workspace/payment-*
 
 - name: deploy-payment-to-stage
   serial: true
   public: true
   plan:
   - get: git-payment
-#    trigger: true
-#    passed:
-#      - build-payment
+    trigger: true
+    passed:
+      - build-payment
   - get: git-pipeline
     trigger: false      
   - task: prepare-app-manifest
