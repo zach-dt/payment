@@ -183,7 +183,6 @@ jobs:
     file: git-pipeline/deploy/cloud-foundry/ci/tasks/app-manifest-prep.yml
     params:
       PCF_APP_SUFFIX: ((pcf-stage-payment-suffix)) 
-      DOCKER_HUB_ACCOUNT: ((docker-hub-username))
       APP_REPO: git-payment
   - put: dynatrace
     params:
@@ -243,7 +242,6 @@ jobs:
     file: git-pipeline/deploy/cloud-foundry/ci/tasks/app-manifest-prep.yml
     params:
       PCF_APP_SUFFIX: ((pcf-prod-payment-suffix)) 
-      DOCKER_HUB_ACCOUNT: ((docker-hub-username))
       APP_REPO: git-payment
       PRODUCTION: true       
   - put: dynatrace

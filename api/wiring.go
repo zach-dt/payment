@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-kit/kit/log"
 	"golang.org/x/net/context"
-
 	stdopentracing "github.com/opentracing/opentracing-go"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/weaveworks/common/middleware"
