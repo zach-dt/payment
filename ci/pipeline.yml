@@ -9,7 +9,7 @@ groups:
   - execute-payment-load-tests
   - validate-payment-load-test
   - promote-new-version-payment
-  - upload-catalogue-git-release
+  - upload-payment-git-release
 
 - name: init-dynatrace
   jobs: 
@@ -390,6 +390,6 @@ jobs:
       name: prepared-release/name
       tag: prepared-release/tag
       globs:
-      - payment-release-bucket/payment-*.jar
+      - payment-release-bucket/payment-*
 #  - put: version
 #    params: { file: version/number } 
