@@ -344,7 +344,7 @@ jobs:
   - get: git-payment
     trigger: true
     passed:
-      - validate-payment-load-test
+      - execute-payment-load-tests
   - get: version
     params: { bump: patch }
   - get: git-pipeline
