@@ -9,6 +9,7 @@ groups:
   - execute-payment-load-tests
   - validate-payment-load-test
   - promote-new-version-payment
+  - upload-catalogue-git-release
 
 - name: init-dynatrace
   jobs: 
@@ -22,6 +23,15 @@ resource_types:
 
 resources:
 
+#GitHub Release Repository
+- name: payment-release
+  type: github-release
+  source:
+    owner: acm-workshop-concourse
+    repository: payment
+    access_token: ((github-access-token))
+
+# GitHub Repositories
 - name: git-pipeline
   type: git
   source:
@@ -123,7 +133,7 @@ jobs:
   - get: git-payment
     trigger: true  
   - get: version
-    params: { pre: rc }
+    params: { pre: build }
   - task: build-payment-binary
     config:
       platform: linux
@@ -210,7 +220,7 @@ jobs:
         - deploy-payment-to-stage
     - get: git-jmeter-as-container
     - get: git-pipeline
-  - task: run-load-tests
+  - task: run-health-check
     file: git-pipeline/deploy/cloud-foundry/ci/tasks/health-test.yml
     params:
       APP_REPO: git-jmeter-as-container
@@ -358,5 +368,28 @@ jobs:
       PCF_PWD: ((pcf-prod-deploy-password))
       PCF_SPACE: ((pcf-prod-space))
       PCF_APP_DOMAIN: ((pcf-prod-app-domain))              
+
+- name: upload-payment-git-release
+  public: true
+  plan:
+  - aggregate:
+    - get: git-payment
+      trigger: true
+      passed: 
+        - promote-new-version-payment
+    - get: payment-release-bucket
+    - get: git-pipeline
+    - get: version
+      params: { pre: build }
+  - task: create-payment-release-info
+    file: git-pipeline/deploy/cloud-foundry/ci/tasks/prepare-release.yml
+    params:
+      APP_NAME: payment
+  - put: payment-release
+    params:
+      name: prepared-release/name
+      tag: prepared-release/tag
+      globs:
+      - payment-release-bucket/payment-*.jar
 #  - put: version
-#    params: { file: version/number }
+#    params: { file: version/number } 
