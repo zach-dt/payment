@@ -1,21 +1,20 @@
 pipeline {
   agent {
-    label 'golang'
+    label 'golang2'
   }
   environment {
     APP_NAME = "payment"
     ARTEFACT_ID = "sockshop/" + "${env.APP_NAME}"
     VERSION = readFile 'version'
     TAG = "10.31.240.247:5000/library/${env.ARTEFACT_ID}"
-    TAG_DEV = "${env.TAG}:dev"
-//    TAG_DEV = "${env.TAG}-${env.VERSION}-${env.BUILD_NUMBER}"
+    TAG_DEV = "${env.TAG}-${env.VERSION}-${env.BUILD_NUMBER}"
     TAG_STAGING = "${env.TAG}-${env.VERSION}"
   }
   stages {
     stage('Go build') {
       steps {
         checkout scm
-        container('golang') {
+        container('gobuilder') {
           sh '''
             export GOPATH=$PWD
 
@@ -65,6 +64,7 @@ pipeline {
       }
       steps {
         container('kubectl') {
+          sh "sed -i 's#image: .*#image: ${env.TAG_DEV}#' manifest/payment.yml"
           sh "kubectl -n dev apply -f manifest/payment.yml"
         }
       }
