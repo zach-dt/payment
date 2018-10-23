@@ -67,8 +67,24 @@ pipeline {
           sh "sed -i 's#image: .*#image: ${env.TAG_DEV}#' manifest/payment.yml"
           sh "kubectl -n dev apply -f manifest/payment.yml"
         }
+
+        createDynatraceDeploymentEvent(
+          envId: 'Dynatrace Tenant',
+          tagMatchRules: [
+            [
+              meTypes: [
+                [meType: 'SERVICE']
+              ],
+              tags: [
+                [context: 'CONTEXTLESS', key: 'app', value: "${env.APP_NAME}"],
+                [context: 'CONTEXTLESS', key: 'environment', value: 'dev']
+              ]
+            ]
+          ]
+        )
       }
     }
+
     stage('Run health check in dev') {
       when {
         expression {
