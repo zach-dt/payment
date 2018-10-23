@@ -20,6 +20,8 @@ spec:
           value: "SERVICE_TYPE=BACKEND"
         - name: DT_CUSTOM_PROP
           value: "SERVICE_TYPE=BACKEND"
+        - name: DT_NODE_ID
+          value: to-be-replaced-by-jenkins
         resources:
           limits:
             cpu: 500m

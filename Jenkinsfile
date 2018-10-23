@@ -65,6 +65,7 @@ pipeline {
       steps {
         container('kubectl') {
           sh "sed -i 's#image: .*#image: ${env.TAG_DEV}#' manifest/payment.yml"
+          sh "sed -i 's#value: .*#value: ${env.VERSION}-${env.BUILD_NUMBER}#' manifest/payment.yml"
           sh "kubectl -n dev apply -f manifest/payment.yml"
         }
       }
