@@ -65,7 +65,7 @@ pipeline {
       steps {
         container('kubectl') {
           sh "sed -i 's#image: .*#image: ${env.TAG_DEV}#' manifest/payment.yml"
-          sh "sed -i 's#value: .*#value: ${env.VERSION}-${env.BUILD_NUMBER}#' manifest/payment.yml"
+          sh "sed -i 's#value: to-be-replaced-by-jenkins.*#value: ${env.VERSION}-${env.BUILD_NUMBER}#' manifest/payment.yml"
           sh "kubectl -n dev apply -f manifest/payment.yml"
         }
       }
@@ -143,6 +143,7 @@ pipeline {
             sh "git config --global user.email ${env.GIT_USER_EMAIL}"
             sh "git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/dynatrace-sockshop/k8s-deploy-staging"
             sh "cd k8s-deploy-staging/ && sed -i 's#image: .*#image: ${env.TAG_STAGING}#' payment.yml"
+            sh "cd k8s-deploy-staging/ && sed -i 's#value: to-be-replaced-by-jenkins.*#value: ${env.VERSION}-${env.BUILD_NUMBER}#' payment.yml"
             sh "cd k8s-deploy-staging/ && git add payment.yml && git commit -m 'Update payment version ${env.VERSION}'"
             sh 'cd k8s-deploy-staging/ && git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/dynatrace-sockshop/k8s-deploy-staging'
         }
