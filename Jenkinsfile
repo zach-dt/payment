@@ -67,7 +67,16 @@ pipeline {
           sh "sed -i 's#image: .*#image: ${env.TAG_DEV}#' manifest/payment.yml"
           sh "kubectl -n dev apply -f manifest/payment.yml"
         }
+      }
+    }
 
+    stage('DT Deploy Event') {
+      when {
+        expression {
+          return env.BRANCH_NAME ==~ 'release/.*' || env.BRANCH_NAME ==~'master'
+        }
+      }
+      steps {
         createDynatraceDeploymentEvent(
           envId: 'Dynatrace Tenant',
           tagMatchRules: [
@@ -80,8 +89,9 @@ pipeline {
                 [context: 'CONTEXTLESS', key: 'environment', value: 'dev']
               ]
             ]
-          ]
-        )
+          ]) {
+            
+        }
       }
     }
 
