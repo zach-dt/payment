@@ -17,11 +17,11 @@ groups:
   jobs: 
   - init-dynatrace-payment
 
-# resource_types:
-# - name: dynatrace-resource
-#   type: docker-image
-#   source:
-#     repository: mvilliger/dynatrace-resource
+resource_types:
+- name: dynatrace-resource
+  type: docker-image
+  source:
+    repository: mvilliger/dynatrace-resource
 
 resources:
 
@@ -46,11 +46,11 @@ resources:
     branch: master
     uri: https://github.com/((workshop-repository))/payment.git
 
-# - name: dynatrace
-#   type: dynatrace-resource
-#   source:
-#     apitoken: ((apitoken))
-#     tenanthost: ((tenanthost))
+- name: dynatrace
+  type: dynatrace-resource
+  source:
+    apitoken: ((dt_api_token))
+    tenanthost: ((dt_tenant_host))
 
 #- name: payment-image
 #  type: docker-image
@@ -198,11 +198,12 @@ jobs:
   - task: prepare-app-manifest
     file: git-pipeline/deploy/cloud-foundry/ci/tasks/app-manifest-prep.yml
     params:
+      STAGE: Dev
       PCF_APP_SUFFIX: ((pcf-dev-payment-suffix)) 
       APP_REPO: git-payment           
   # - put: dynatrace
   #   params:
-  #     monspecserviceenvironment: payment/dev
+  #     monspecserviceenvironment: payment/Dev
   #     pipelinetaskname: deploy-to-dev
   #     deployversion: v1.0
   #     APP_REPO: git-payment
@@ -283,14 +284,15 @@ jobs:
   - task: prepare-app-manifest
     file: git-pipeline/deploy/cloud-foundry/ci/tasks/app-manifest-prep.yml
     params:
+      STAGE: Staging
       PCF_APP_SUFFIX: ((pcf-staging-payment-suffix)) 
       APP_REPO: git-payment               
-  # - put: dynatrace
-  #   params:
-  #     monspecserviceenvironment: payment/Production
-  #     pipelinetaskname: deploy-to-prod
-  #     deployversion: v1.0 
-  #     APP_REPO: git-payment 
+  - put: dynatrace
+    params:
+      monspecserviceenvironment: payment/Staging
+      pipelinetaskname: deploy-to-staging
+      deployversion: v1.0 
+      APP_REPO: git-payment 
   - put: pcf-staging
     params:
       path: git-payment
@@ -378,15 +380,15 @@ jobs:
   - task: prepare-app-manifest
     file: git-pipeline/deploy/cloud-foundry/ci/tasks/app-manifest-prep.yml
     params:
+      STAGE: Production 
       PCF_APP_SUFFIX: ((pcf-production-payment-suffix)) 
-      APP_REPO: git-payment
-      PRODUCTION: true                 
-  # - put: dynatrace
-  #   params:
-  #     monspecserviceenvironment: payment/Production
-  #     pipelinetaskname: deploy-payment-to-prod
-  #     deployversion: v1.0 
-  #     APP_REPO: git-payment 
+      APP_REPO: git-payment       
+  - put: dynatrace
+    params:
+      monspecserviceenvironment: payment/Production
+      pipelinetaskname: deploy-to-production
+      deployversion: v1.0 
+      APP_REPO: git-payment 
   - put: pcf-production
     params:
       path: git-payment
