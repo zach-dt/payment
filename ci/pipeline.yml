@@ -55,7 +55,7 @@ resources:
   type: dynatrace-resource
   source:
     apitoken: ((dt_api_token))
-    tenanthost: ((dt_tenant_url))
+    tenanthost: ((dt_tenant_host))
 
 #- name: payment-image
 #  type: docker-image
@@ -127,7 +127,7 @@ jobs:
     file: git-pipeline/deploy/cloud-foundry/ci/tasks/init-dynatrace-task.yml
     params: 
       apitoken: ((dt_api_token))
-      tenanthost: ((dt_tenant_url))
+      tenanthost: ((dt_tenant_host))
       APP_REPO: git-payment
 
 # PAYMENT
@@ -330,7 +330,7 @@ jobs:
 #     params: 
 #       monspecserviceenvironment: payment/Production-$NEXT_APP_COLOR
 #       apitoken: ((dt_api_token))
-#       tenanthost: ((dt_tenant_url))
+#       tenanthost: ((dt_tenant_host))
 #       APP_REPO: git-payment  
 
 # - name: validate-payment-load-test
@@ -357,7 +357,7 @@ jobs:
 #     params: 
 #       monspeccomparison: payment/Production-$NEXT_APP_COLOR\ToProduction-$CURRENT_APP_COLOR\Last5m
 #       apitoken: ((dt_api_token))
-#       tenanthost: ((dt_tenant_url))
+#       tenanthost: ((dt_tenant_host))
 #       APP_REPO: git-payment     
 
 - name: deploy-to-production
@@ -483,7 +483,7 @@ jobs:
     params: 
       monspecserviceenvironment: payment/Dev
       apitoken: ((dt_api_token))
-      tenanthost: ((dt_tenant_url))
+      tenanthost: ((dt_tenant_host))
       APP_REPO: git-payment 
 
 - name: validate-performance-check
@@ -501,5 +501,5 @@ jobs:
     params: 
       monspeccomparison: payment/DevToDevLastHour
       apitoken: ((dt_api_token))
-      tenanthost: ((dt_tenant_url))
+      tenanthost: ((dt_tenant_host))
       APP_REPO: git-payment 
